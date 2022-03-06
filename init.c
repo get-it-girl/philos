@@ -41,15 +41,14 @@ int init_forks(t_info *info)
 
 int	init_info(t_info *info, int argc, char **argv)
 {
-	if ((argv[1] <= 0 || argv[2] < 0 || argv[3] < 0 || argv[4] < 0)) 
-	// узнать нужно ли вообще этот чек или проверка на <= or =>
+	if ((argv[1] <= 0 || argv[2] <= 0 || argv[3] <= 0 || argv[4] <= 0))
 		return (print_error("Incorrect arguments\n"));
 	info->nbr_philo = ft_atoi(argv[1]);
 	info->to_die = ft_atoi(argv[2]);
 	info->to_eat = ft_atoi(argv[3]);
 	info->to_sleep = ft_atoi(argv[4]);
 	info->forks	= NULL;
-	if (argc == 6 && argv[5] > 0)
+	if (argc == 6 && argv[5] >= 0)
 		info->nbr_eat = argv[5];
 	else
 		info->nbr_eat = 0;

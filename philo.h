@@ -18,6 +18,7 @@ typedef struct s_info
 	t_philo *philos;
 	pthread_mutex_t *forks;
 	pthread_mutex_t dead;
+	pthread_mutex_t mes;
 }	t_info;
 
 typedef struct s_philo
@@ -37,7 +38,7 @@ typedef struct s_philo
 int print_error(char *str);
 int	init_info(t_info *info, int argc, char **argv);
 int	ft_atoi(const char *str);
-
+void print_mes(t_philo *ph, char *str);
 
 
 #endif
