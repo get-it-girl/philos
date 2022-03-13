@@ -1,4 +1,4 @@
-#include <philo.h>
+#include"philo.h"
 
 long	timing(void)
 {
@@ -14,13 +14,22 @@ void *check(void *phil)
 {
 	t_philo *ph;
 
+	ph = (t_philo *) phil;
 	while (1)
 	{
-		ph = (t_philo *) phil;
 		pthread_mutex_lock(&ph->busy);
-		if (timing() - ph->info->t_start >= ph->time_live)
+		// pthread_mutex_lock(&ph->info->mes);
+		// ft_putnbr(timing());
+		// write(1, " - ", 4);
+		// ft_putnbr(ph->info->t_start);
+		// write(1, " = ", 4);
+		// ft_putnbr(ph->time_live);
+		// write(1, "\n", 1);
+		// pthread_mutex_unlock(&ph->info->mes);
+		if (timing() >= ph->time_live)
 		{
-			print_mes(ph, "is dead\n");
+			print_mes(ph, "died\n");
+			ph->is_dead = 1;
 			pthread_mutex_unlock(&ph->info->dead);
 			pthread_mutex_unlock(&ph->busy);
 			return (NULL);
@@ -30,13 +39,15 @@ void *check(void *phil)
 	}
 }
 
-void	ft_putnbr(long num)
+void	ft_putnbr(long n)
 {
 	char	s[20];
 	int		i;
 
 	i = 0;
 
+	if (n == 0)
+		write(1, "0", 2);
 	while (n > 0)
 	{
 		s[i] = n % 10 + '0';
@@ -46,7 +57,7 @@ void	ft_putnbr(long num)
 	i--;
 	while (i >= 0)
 	{
-		write(fd, &s[i], 1);
+		write(1, &s[i], 1);
 		i--;
 	}
 }
@@ -55,18 +66,21 @@ void	ft_putnbr(long num)
 void print_mes(t_philo *ph, char *str)
 {
 	int i;
+	static int dead = 0;
 
 	i = 0;
 	pthread_mutex_lock(&ph->info->mes);
-	ft_putnbr(timming() - ph->info->t_start);
-	write(1, "\t", 1);
-	if (ph->count_eat != ph->info->nbr_eat)
+	if (dead == 0)
 	{
+		if (ft_strncmp(str, "died\n", 5) == 0)
+			dead = 1;
+		ft_putnbr((long)(timing() - ph->info->t_start));
+		write(1, "\t", 1);
 		ft_putnbr(ph->index + 1);
-		write(1, " ", 1);
+		write(1, "\t", 1);
+		while (str[i])
+			write(1, &str[i++], 1);
 	}
-	while (str[i])
-		write(1, &str[i++], 1);
 	pthread_mutex_unlock(&ph->info->mes);
 }
 
@@ -77,8 +91,15 @@ void *just_life(void *phil)
 	pthread_t thread_2;
 
 	ph = (t_philo *)phil;
-	if (pthread_creat(&thread_2, NULL, &check, (void *)phil) != 0)
-		return((void *)print_error("Thread error\n"));
+	ph->last_eat = timing();
+	ph->time_live = ph->last_eat + ph->info->to_die;
+	// ft_putnbr(ph->last_eat);
+	// write(1, "\n", 1);
+	if (pthread_create(&thread_2, NULL, &check, (void *)phil) != 0)
+	{
+		print_error("Thread error\n");
+		return((void *)1);
+	}	
 	pthread_detach(thread_2);
 	while (1)
 	{
@@ -87,6 +108,7 @@ void *just_life(void *phil)
 		put_f(phil);
 		print_mes(phil, "is thinking\n");
 	}
+	return ((void *)0);
 }
 
 int living(t_info *info)
@@ -101,12 +123,12 @@ int living(t_info *info)
 	// 	return(print_error("Thread error\n"));
 	while (i < info->nbr_philo)
 	{
-		if (pthread_create(&thread_1, NULL, &just_life, (void *)(&info->philos[i])) != 0 ||
-			pthread_detach(thread_1) != 0)
+		if (pthread_create(&thread_1, NULL, &just_life, (void *)(&info->philos[i])) != 0)
 			return (print_error("Thread error\n"));
+		pthread_detach(thread_1);
+		// usleep(600);
 		i++;
 	}
-	pthread_mutex_lock(&info->dead);
-	pthread_mutex_unlock(&info->dead);
+
 	return (0);
 }

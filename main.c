@@ -1,4 +1,4 @@
-#include<philo.h>
+#include"philo.h"
 
 int print_error(char *str)
 {
@@ -23,4 +23,7 @@ int main(int argc, char **argv)
 		return (1);
 	if (living(&info))
 		return (1);
+	pthread_mutex_lock(&info.dead);
+	pthread_mutex_unlock(&info.dead);
+	return (0);
 }

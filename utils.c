@@ -1,4 +1,4 @@
-#include<philo.h>
+#include"philo.h"
 
 size_t	ft_strlen(const char *str)
 {
@@ -18,7 +18,7 @@ char	*check_space(char *str)
 	return (str);
 }
 
-static int	ft_putnbr(char *out)
+static int	ft_putnbr_2(char *out)
 {
 	int	i;
 	int	res;
@@ -78,6 +78,6 @@ int	ft_atoi(const char *str)
 	if (ft_strncmp(out, "-2147483648", 11) == 0)
 		return (-2147483648);
 	if (s1[0] == '-')
-		return (ft_putnbr(out) * (-1));
-	return (ft_putnbr(out));
+		return (ft_putnbr_2(out) * (-1));
+	return (ft_putnbr_2(out));
 }
