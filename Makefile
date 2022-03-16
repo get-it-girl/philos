@@ -1,4 +1,4 @@
-NAME	= philosophers
+NAME	= philo_one
 
 HEADER	= ./philo.h
 
