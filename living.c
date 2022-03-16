@@ -143,7 +143,7 @@ int living(t_info *info)
 	info->t_start = timing();
 	i = 0;
 	if (info->nbr_eat != 0 && ((pthread_create(&thread_1, NULL, &count_life, (void *)info) != 0) &&
-		pthread_detach(thread_1) != 0))
+		pthread_detach(thread_1) != 0)) // сегается при 4 410 200 200 7
 		return(print_error("Thread error\n"));
 	while (i < info->nbr_philo)
 	{

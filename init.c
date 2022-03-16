@@ -16,7 +16,7 @@ void start_life(t_info *info)
 		info->philos[i].count_eat = 0;
 		info->philos[i].info = info;
 		info->philos[i].eating = 0;
-		info->philos[i].time_live = info->to_die;
+		info->philos[i].time_live = timing() + info->to_die;
 		pthread_mutex_init(&info->philos[i].busy, NULL);
 		pthread_mutex_init(&info->philos[i].must_eat, NULL);
 		pthread_mutex_lock(&info->philos[i].must_eat);
