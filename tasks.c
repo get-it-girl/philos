@@ -1,6 +1,6 @@
 #include"philo.h"
 
-void take_f(t_philo *ph)
+void	take_f(t_philo *ph)
 {
 	pthread_mutex_lock(&ph->info->forks[ph->left_fork]);
 	print_mes(ph, "has taken a fork\n");
@@ -21,7 +21,8 @@ void	ft_usleep(int time_in_ms)
 		now_time = timing();
 	}
 }
-void put_f(t_philo *ph)
+
+void	put_f(t_philo *ph)
 {
 	pthread_mutex_unlock(&ph->info->forks[ph->left_fork]);
 	pthread_mutex_unlock(&ph->info->forks[ph->right_fork]);
@@ -29,12 +30,10 @@ void put_f(t_philo *ph)
 	ft_usleep(ph->info->to_sleep);
 }
 
-
-void eat(t_philo *ph)
+void	eat(t_philo *ph)
 {
 	pthread_mutex_lock(&ph->busy);
 	ph->eating = 1;
-	ph->count_eat++;
 	ph->time_live = timing() + ph->info->to_die;
 	print_mes(ph, "is eating\n");
 	ft_usleep(ph->info->to_eat);
