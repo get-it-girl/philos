@@ -1,4 +1,4 @@
-#include"philo.h"
+#include "philo.h"
 
 size_t	ft_strlen(const char *str)
 {
@@ -81,4 +81,33 @@ int	ft_atoi(const char *str)
 	if (s1[0] == '-')
 		return (ft_putnbr_2(out) * (-1));
 	return (ft_putnbr_2(out));
+}
+
+int print_error(char *str)
+{
+	while (*str)
+		write(1, str++, 1);
+	return (1);
+}
+
+void	ft_putnbr(long n)
+{
+	char	s[20];
+	int		i;
+
+	i = 0;
+	if (n == 0)
+		write(1, "0", 2);
+	while (n > 0)
+	{
+		s[i] = n % 10 + '0';
+		n = n / 10;
+		i++;
+	}
+	i--;
+	while (i >= 0)
+	{
+		write(1, &s[i], 1);
+		i--;
+	}
 }

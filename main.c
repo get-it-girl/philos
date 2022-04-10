@@ -1,64 +1,28 @@
-#include"philo.h"
+#include "philo.h"
 
-int	print_error(char *str)
+
+
+// ЗАДАЧИИ
+
+/*
+1. обработать вариант с одним философом, чтобы не выходил за время проверки в 10 секунд !!!!!!!
+
+2. Протестить еще раз все хорошеньшбко на бесконечность и на ограничение по еде
+3. Проверить норму
+4. сделать клинер с условиями когда что клинить
+5. разнести все 
+*/
+int main(int argc, char **argv)
 {
-	int	i;
+	t_info info;
 
-	i = 0;
-	while (str[i])
-	{
-		write(1, &str[i], 1);
-		i++;
-	}
-	return (1);
-}
-
-int	cleaner(t_info *info)
-{
-	int	i;
-
-	i = 0;
-	if (info->philos)
-	{
-		while (i < info->nbr_philo)
-		{
-			pthread_mutex_destroy(&info->philos[i].busy);
-			pthread_mutex_destroy(&info->philos[i].must_eat);
-			i++;
-		}
-		free(info->philos);
-		pthread_mutex_destroy(&info->dead);
-		pthread_mutex_destroy(&info->mes);
-	}
-	if (info->forks)
-	{
-		i = 0;
-		while (i < info->nbr_philo)
-			pthread_mutex_destroy(&info->forks[i++]);
-		free(info->forks);
-	}
-	return (1);
-}
-
-int	main(int argc, char **argv)
-{
-	t_info	info;
-	int		out;
-
-	if (argc > 4)
-	{
-		out = init_info(&info, argc, argv);
-		if (out == 1)
-			return (cleaner(&info));
-		if (out == 2)
-			return (1);
-		if (living(&info) == 1)
-			return (cleaner(&info));
-		pthread_mutex_lock(&info.dead);
-		pthread_mutex_unlock(&info.dead);
-		cleaner(&info);
-	}
-	else
-		return (print_error("Wrong amount of arguments\n"));
+	if (argc < 5 || argc > 6)
+		return(print_error("Wrong amount of arguments.\n"));
+	if (init(&info, argc, argv) == 1)
+		return (print_error("Incorrect arguments.\n"));
+	if (life(&info))
+		return (1);
+	pthread_mutex_lock(&info.death);
+	pthread_mutex_unlock(&info.death);
 	return (0);
 }
