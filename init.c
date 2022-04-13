@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wmika <wmika@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/04/13 20:28:50 by wmika             #+#    #+#             */
+/*   Updated: 2022/04/13 20:28:51 by wmika            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-int init_args(t_info *info, int argc, char **argv)
+int	init_args(t_info *info, int argc, char **argv)
 {
 	(void)argc;
 	if (ft_atoi(argv[1]) < 0 || ft_atoi(argv[2]) < 60
@@ -19,7 +31,8 @@ int init_args(t_info *info, int argc, char **argv)
 
 int	init_info(t_info *info)
 {
-	int i;
+	int	i;
+
 	info->philos = malloc(sizeof(t_philo) * info->nbr);
 	if (!info->philos)
 		return (print_error("Malloc error.\n"));
@@ -46,8 +59,7 @@ int	init_info(t_info *info)
 
 int	init(t_info *info, int argc, char **argv)
 {
-	// позаботиться о чистке памяти если первый маллок сработал, а второй нет
 	if (init_args(info, argc, argv) || init_info(info))
-		return (1);
+		return (print_error("Incorrect arguments.\n"));
 	return (0);
 }

@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   task.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wmika <wmika@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/04/13 20:26:25 by wmika             #+#    #+#             */
+/*   Updated: 2022/04/13 20:26:28 by wmika            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-void take_fork(t_philo	*ph)
+void	take_fork(t_philo	*ph)
 {
 	pthread_mutex_lock(&ph->info->forks[ph->left]);
-	pthread_mutex_lock(&ph->info->forks[ph->right]);
 	mes(ph, "has taken a fork\n");
+	pthread_mutex_lock(&ph->info->forks[ph->right]);
 }
 
 void	ft_usleep(int time_in_ms)
@@ -21,7 +33,7 @@ void	ft_usleep(int time_in_ms)
 	}
 }
 
-void put_fork( t_philo *ph)
+void	put_fork( t_philo *ph)
 {
 	pthread_mutex_unlock(&ph->info->forks[ph->left]);
 	pthread_mutex_unlock(&ph->info->forks[ph->right]);
@@ -30,7 +42,7 @@ void put_fork( t_philo *ph)
 	mes(ph, "is thinking\n");
 }
 
-void eat(t_philo *ph)
+void	eat(t_philo *ph)
 {	
 	pthread_mutex_lock(&ph->busy);
 	ph->life_time = get_time() + ph->info->to_die;
