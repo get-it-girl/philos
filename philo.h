@@ -1,66 +1,52 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   philo.h                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wmika <wmika@student.42.fr>                +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/13 20:28:38 by wmika             #+#    #+#             */
-/*   Updated: 2022/04/13 20:28:41 by wmika            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <pthread.h>
 # include <sys/time.h>
+# include <unistd.h>
+# include <stdio.h>
+# include <pthread.h>
 
-# include<stdio.h>
+struct s_info;
 
-struct	s_info;
-
-typedef struct s_philo
+typedef struct s_philos
 {
 	int				index;
-	long			life_time;
-	int				left;
-	int				right;
+	int				nbr_meals;
+	int				left_fork;
+	int				right_fork;
+	long long		last_ate;
 	struct s_info	*info;
-	pthread_mutex_t	busy;
-	pthread_mutex_t	eat;
-}	t_philo;
+	pthread_t		ph_thread;
+}	t_philos;
 
-typedef struct s_info
+typedef struct	s_info
 {
-	long			start;
-	int				nbr;
-	int				to_die;
-	int				to_eat;
-	int				to_sleep;
-	int				must_eat;
-	t_philo			*philos;
-	pthread_t		*threads;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	death;
-	pthread_mutex_t	mes;
+	int nbr_ph;
+	int to_die;
+	int to_eat;
+	int to_sleep;
+	int nbr_meals;
+	int dead;
+	int finished;
+	long long start_time;
+	pthread_mutex_t	busy;
+	pthread_mutex_t forks[200];
+	pthread_mutex_t mes;
+	t_philos philos[200];
 }	t_info;
 
-int		init(t_info *info, int argc, char **argv);
-int		print_error(char *str);
-int		ft_atoi(const char *str);
+int	init(t_info *info, char **argv);
+
+
+int print_error(int flag);
+int	ft_atoi(char *str);
 long	get_time(void);
-void	ft_putnbr(long n);
-void	take_fork(t_philo	*ph);
-void	put_fork( t_philo *ph);
-void	eat(t_philo *ph);
-int		life(t_info *info);
-void	mes(t_philo *ph, char *str);
-void	ft_usleep(int time_in_ms);
-int		ft_strncmp(const char *s1, const char *s2, size_t n);
-void	*limit_food(void *data);
+void	ft_usleep(int time_in_ms, t_info *info);
+void messege(t_philos *ph, char *str);
+
+int life(t_info *info);
+
 
 #endif
+

@@ -2,7 +2,7 @@ NAME	= philosophers
 
 HEADER	= ./philo.h
 
-SRC		=	main.c init.c utils_1.c task.c life.c
+SRC		=	main.c init.c utils.c life.c
 
 OBJ		= ${patsubst %.c,%.o,${SRC}}
 

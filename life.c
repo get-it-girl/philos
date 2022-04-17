@@ -1,119 +1,63 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   life.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wmika <wmika@student.42.fr>                +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/13 20:29:26 by wmika             #+#    #+#             */
-/*   Updated: 2022/04/13 20:44:13 by wmika            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+# include "philo.h"
 
-#include "philo.h"
 
-long	get_time(void)
+void cycle_1(t_philos *ph)
 {
-	struct timeval	tp;
-	long			time;
-
-	gettimeofday(&tp, NULL);
-	time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-	return (time);
+	pthread_mutex_lock(&ph->info->forks[ph->left_fork]);
+	messege(ph, "has taken a left fork\n");
+	pthread_mutex_lock(&ph->info->forks[ph->right_fork]);
+	messege(ph, "has taken a right fork\n");
+	pthread_mutex_lock(&(ph->info->busy));
+	messege(ph, "is eating\n");
+	ph->last_ate = get_time();
+	pthread_mutex_lock(&(ph->info->busy));
+	ft_usleep(ph->info->to_eat, ph->info);
+	ph->nbr_meals++;
+	pthread_mutex_unlock(&ph->info->forks[ph->left_fork]);
+	pthread_mutex_unlock(&ph->info->forks[ph->right_fork]);
 }
 
-void	*check(void *philos)
+void cycle_2(t_philos *ph)
 {
-	t_philo	*ph;
+	messege(ph, "is sleeping\n");
+	ft_usleep(ph->info->to_sleep, ph->info);
+	messege(ph, "is thinling\n");
+}
 
-	ph = (t_philo *)philos;
-	while (1)
+void *exist(void *ph_info)
+{
+	t_philos *ph;
+
+	ph = (t_philos *)ph_info;
+	if (ph->index % 2)
+		usleep(15000);
+	while (!(ph->info->dead))
 	{
-		pthread_mutex_lock(&ph->busy);
-		if (get_time() >= ph->life_time)
-		{
-			mes(ph, "died\n");
-			pthread_mutex_unlock(&ph->info->death);
-			pthread_mutex_unlock(&ph->busy);
-			return (NULL);
-		}
-		pthread_mutex_unlock(&ph->busy);
-		if (ph->info->nbr != 1)
-			usleep(10000);
-		else
-			ft_usleep(ph->info->to_die - 1);
+		cycle_1(ph);
+		if (ph->info->finished)
+			break;
+		cycle_2(ph);		
 	}
 	return (NULL);
 }
 
-void	*phil_life(void *philos)
+
+int life(t_info *info)
 {
-	t_philo		*ph;
-	pthread_t	th1;
-
-	ph = (t_philo *)philos;
-	if (pthread_create(&th1, NULL, &check, (void *)(ph))
-		|| pthread_detach(th1))
-	{
-		print_error("Thread error.\n");
-		return ((void *)1);
-	}
-	while (1)
-	{
-		take_fork(ph);
-		eat(ph);
-		put_fork(ph);
-	}
-	return ((void *)0);
-}
-
-void	*limit_food(void *data)
-{
-	t_info	*info;
-	int		count;
-	int		i;
-
-	count = 0;
-	info = (t_info *)data;
-	while (count <= info->must_eat)
-	{
-		i = 0;
-		while (i < info->nbr)
-		{
-			pthread_mutex_lock(&info->philos[i].eat);
-			i++;
-		}
-		count++;
-	}
-	mes(&info->philos[0], "Reached allowed amount of food\n");
-	pthread_mutex_unlock(&info->death);
-	return ((void *)0);
-}
-
-int	life(t_info *info)
-{
-	pthread_t	th;
-	int			i;
+	int i;
+	t_philos *ph;
 
 	i = 0;
-	pthread_mutex_lock(&info->death);
-	info->threads = malloc(sizeof(pthread_t) * info->nbr);
-	if (!info->threads)
-		return (print_error("Malloc error.\n"));
-	info->start = get_time();
-	if (info->must_eat != -1
-		&& (pthread_create(&th, NULL, &limit_food, (void *)(info)) != 0
-		|| pthread_detach(th)))
-		return (print_error("Thread error\n"));
-	while (i < info->nbr)
+	ph = info->philos;
+	info->start_time = get_time();
+	while (i < info->nbr_ph)
 	{
-		info->philos[i].life_time = info->start + info->to_die;
-		if (pthread_create(&info->threads[i], NULL, &phil_life, \
-			(void *) &(info->philos[i])))
-			return (print_error("Thread error.\n"));
-		pthread_detach(info->threads[i]);
-		usleep(400);
+		if (pthread_create(&ph[i].ph_thread, NULL, *exist, (void *)&ph[i]))
+			return (1);
+		ph[i].last_ate = get_time();
 		i++;
 	}
+	// checker 
+	// endofgame
 	return (0);
 }

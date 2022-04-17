@@ -1,65 +1,62 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wmika <wmika@student.42.fr>                +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/13 20:28:50 by wmika             #+#    #+#             */
-/*   Updated: 2022/04/13 20:28:51 by wmika            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
-#include "philo.h"
+# include "philo.h"
 
-int	init_args(t_info *info, int argc, char **argv)
+int m_init(t_info *info)
 {
-	(void)argc;
-	if (ft_atoi(argv[1]) < 0 || ft_atoi(argv[2]) < 60
-		|| ft_atoi(argv[3]) < 60 || ft_atoi(argv[4]) < 60)
+	int i;
+
+	i = 0;
+	while (i < info->nbr_ph)
+	{
+		if (pthread_mutex_init(&(info->forks[i]), NULL))
+			return (1);
+		i++;
+	}
+	if (pthread_mutex_init(&(info->busy), NULL))
 		return (1);
-	if (argc == 6 && ft_atoi(argv[5]) > 0)
-		info->must_eat = ft_atoi(argv[5]);
-	else
-		info->must_eat = -1;
-	info->nbr = ft_atoi(argv[1]);
+	if (pthread_mutex_init(&(info->mes), NULL))
+		return (1);
+	return (0);
+}
+
+void ph_init(t_info *info)
+{
+	int i;
+
+	i = 0;
+	while (i < info->nbr_ph)
+	{
+		info->philos[i].index = i;
+		info->philos[i].nbr_meals = 0;
+		info->philos[i].left_fork = i;
+		info->philos[i].right_fork = (i + 1) % info->nbr_ph;
+		info->philos[i].last_ate = 0;
+		info->philos[i].info = info;
+		i++;
+	}
+}
+
+int	init(t_info *info, char **argv)
+{
+	info->nbr_ph = ft_atoi(argv[1]);
 	info->to_die = ft_atoi(argv[2]);
 	info->to_eat = ft_atoi(argv[3]);
 	info->to_sleep = ft_atoi(argv[4]);
-	return (0);
-}
-
-int	init_info(t_info *info)
-{
-	int	i;
-
-	info->philos = malloc(sizeof(t_philo) * info->nbr);
-	if (!info->philos)
-		return (print_error("Malloc error.\n"));
-	i = 0;
-	while (i < info->nbr)
+	info->nbr_meals = -1;
+	info->dead = 0;
+	info->finished = 0;
+	if (info->nbr_ph < 0 || info->to_die < 60 
+		|| info->to_eat < 60 || info->to_sleep < 60
+		|| info->nbr_ph > 200)
+		return (2);
+	if (argv[5])
 	{
-		info->philos[i].index = i;
-		info->philos[i].left = i;
-		info->philos[i].right = (i + 1) % info->nbr;
-		info->philos[i].info = info;
-		pthread_mutex_init(&(info->philos[i].busy), NULL);
-		pthread_mutex_init(&(info->philos[i].eat), NULL);
-		i++;
+		info->nbr_meals = ft_atoi(argv[5]);
+		if (info->nbr_meals <= 0)
+			return(2);
 	}
-	pthread_mutex_init(&(info->death), NULL);
-	pthread_mutex_init(&(info->mes), NULL);
-	info->forks = malloc(sizeof(pthread_mutex_t) * info->nbr);
-	if (!info->forks)
-		return (print_error("Malloc error.\n"));
-	while (--i >= 0)
-		pthread_mutex_init(&(info->forks[i]), NULL);
-	return (0);
-}
-
-int	init(t_info *info, int argc, char **argv)
-{
-	if (init_args(info, argc, argv) || init_info(info))
-		return (print_error("Incorrect arguments.\n"));
+	if (m_init(info))
+		return (3);
+	ph_init(info);
 	return (0);
 }
